@@ -67,6 +67,23 @@ as.year <- function(x){
 seriesymean <- aggregate(series, as.Date(as.year(time(series))), namean)
 plot(seriesymean)
 
+# plot the seasonally aggregated data
+as.season <- function(oDates){
+  unlist(lapply(oDates, function(oDate) {
+    monthDate <- cut(oDate, 'month')
+    month <- as.numeric(format(oDate, "%m"))
+    year <- as.numeric(format(oDate, "%Y"))
+    if(month <= 2) return(as.Date(paste(year - 1, '-12-1', sep="")))
+    if(month <= 5) return(as.Date(paste(year, '-3-1', sep="")))
+    if(month <= 8) return(as.Date(paste(year, '-6-1', sep="")))
+    if(month <= 11) return(as.Date(paste(year, '-9-1', sep="")))
+    return(as.Date(paste(year, '-12-1', sep="")))
+  }))
+}
+seriesSeasmean <- aggregate(series, as.Date(as.season(time(series))), namean)
+plot(seriesSeasmean)
+
+
 # plot the monthly 95th percentile aggregated data
 seriesmmean95p <- aggregate(series, as.Date(as.yearmon(time(series))), p95)
 plot(seriesmmean95p)
@@ -74,4 +91,9 @@ plot(seriesmmean95p)
 # plot the yearly 95th percentile aggregated data
 seriesymean95p <- aggregate(series, as.Date(as.year(time(series))), p95)
 plot(seriesymean95p)
+
+# plot the seasonally 95th percentile aggregated data
+seriesSeasmean95p <- aggregate(series, as.Date(as.season(time(series))), p95)
+plot(seriesSeasmean95p)
+
 ```
