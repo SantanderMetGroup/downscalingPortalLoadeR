@@ -68,9 +68,6 @@ seriesymean <- aggregate(series, as.Date(as.year(time(series))), namean)
 plot(seriesymean)
 
 # plot the monthly 95th percentile aggregated data
-p95<- function(x){
-  quantile(x,.95)
-}
 seriesmmean95p <- aggregate(series, as.Date(as.yearmon(time(series))), p95)
 plot(seriesmmean95p)
 
