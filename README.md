@@ -97,3 +97,72 @@ seriesSeasmean95p <- aggregate(series, as.Date(as.season(time(series))), p95)
 plot(seriesSeasmean95p)
 
 ```
+
+
+### Fit the data to a GEV distribution ###
+
+We are going to fit our data to a GEV distribution using the block maxima approach
+
+```
+install.packages("ismev")
+require(ismev)
+```
+
+We define a function that computes the maximum value ignoring the missing data
+
+```
+namax<- function(x){
+  max(x,na.rm = TRUE)
+}
+```
+
+We aggregate the data as in the previous section but now selecting the maximum
+
+```
+# For the monthly data
+seriesMonMax <- aggregate(series, as.Date(as.yearmon(time(series))), namax)
+
+# And for the seasonal data
+as.season <- function(oDates){
+  unlist(lapply(oDates, function(oDate) {
+    monthDate <- cut(oDate, 'month')
+    month <- as.numeric(format(oDate, "%m"))
+    year <- as.numeric(format(oDate, "%Y"))
+    if(month <= 2) return(as.Date(paste(year - 1, '-12-1', sep="")))
+    if(month <= 5) return(as.Date(paste(year, '-3-1', sep="")))
+    if(month <= 8) return(as.Date(paste(year, '-6-1', sep="")))
+    if(month <= 11) return(as.Date(paste(year, '-9-1', sep="")))
+    return(as.Date(paste(year, '-12-1', sep="")))
+  }))
+}
+seriesSeasMax <- aggregate(series, as.Date(as.season(time(series))), namax)
+```
+
+In this example we want to fit winter (DJF) maxima values to a GEV distribution, 
+using the monthly and the seasonally aggregated data for the comparison of 
+different block lengths:
+
+```
+# Extract DJF from the monthly data
+month <- as.numeric(format(time(seriesMonMax), "%m"))
+indDJF <- which(month=="1" | month=="2" | month=="12")
+seriesMonMaxDJF <- seriesMonMax[indDJF]
+
+# Extract DJF from the seasonal data
+month <- as.numeric(format(time(seriesSeasMax), "%m"))
+indDJF <- which(month=="12")
+seriesSeasMaxDJF <- seriesSeasMax[indDJF]
+```
+
+Finally, we fit our data to a stationary GEV distribution
+
+```
+gevMonDJF <- gev.fit(seriesMonMaxDJF)
+gevSeasDJF <- gev.fit(seriesSeasMaxDJF)
+
+# Diagnostic plots
+gev.diag(gevMonDJF)
+gev.diag(gevSeasDJF)
+```
+
+
