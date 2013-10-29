@@ -123,18 +123,6 @@ We aggregate the data as in the previous section but now selecting the maximum
 seriesMonMax <- aggregate(series, as.Date(as.yearmon(time(series))), namax)
 
 # And for the seasonal data
-as.season <- function(oDates){
-  unlist(lapply(oDates, function(oDate) {
-    monthDate <- cut(oDate, 'month')
-    month <- as.numeric(format(oDate, "%m"))
-    year <- as.numeric(format(oDate, "%Y"))
-    if(month <= 2) return(as.Date(paste(year - 1, '-12-1', sep="")))
-    if(month <= 5) return(as.Date(paste(year, '-3-1', sep="")))
-    if(month <= 8) return(as.Date(paste(year, '-6-1', sep="")))
-    if(month <= 11) return(as.Date(paste(year, '-9-1', sep="")))
-    return(as.Date(paste(year, '-12-1', sep="")))
-  }))
-}
 seriesSeasMax <- aggregate(series, as.Date(as.season(time(series))), namax)
 ```
 
